@@ -86,6 +86,8 @@ checkout(Host, Port, Transport, Client) ->
   receive
     {checkout, Ref, Result} ->
       Result
+    after
+      60000 -> {error, checkout_uncknown}
   end.
 
 do_checkout(Requester, Host, _Port, Transport, #client{options=Opts,
