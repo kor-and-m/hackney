@@ -6,6 +6,10 @@
 %%% Copyright (c) 2011-2012, Loïc Hoguin <essen@ninenines.eu>
 %%%
 -module(hackney_tcp).
+
+-define(RECV_TIMEOUT, application:get_env(hackney, recv_timeout, 2000)).
+-define(INIT_TIMEOUT, application:get_env(hackney, init_connect_timeout, 2000)).
+
 -export([messages/1,
   connect/3, connect/4,
   recv/2, recv/3,
@@ -21,7 +25,7 @@
 messages(_) -> {tcp, tcp_closed, tcp_error}.
 
 connect(Host, Port, Opts) ->
-  connect(Host, Port, Opts, 10000).
+  connect(Host, Port, Opts, ?INIT_TIMEOUT).
 
 connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
                                         (Timeout =:= infinity orelse is_integer(Timeout)) ->
@@ -31,7 +35,7 @@ connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
   gen_tcp:connect(Host, Port, Opts1, Timeout).
 
 recv(Socket, Length) ->
-  recv(Socket, Length, 10000).
+  recv(Socket, Length, ?RECV_TIMEOUT).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see gen_tcp:recv/3

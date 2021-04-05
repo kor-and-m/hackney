@@ -63,7 +63,7 @@ init_request(InitialState) ->
   put(Ref, InitialState#client{request_ref=Ref}),
   %% supervise the process owner
   {ok, StartTime} = gen_server:call(?MODULE, {new_request, self(), Ref,
-    InitialState}, 10000),
+    InitialState}, 60000),
   {Ref, StartTime}.
 
 
@@ -179,7 +179,7 @@ start_async_response(Ref) ->
   end.
 
 stop_async_response(Ref) ->
-  gen_server:call(?MODULE, {stop_async_response, Ref, self()}, 10000).
+  gen_server:call(?MODULE, {stop_async_response, Ref, self()}, 60000).
 
 async_response_pid(Ref) ->
   case ets:lookup(?REFS, Ref) of
@@ -244,7 +244,7 @@ take_control(Ref, NState) ->
   ets:delete(?MODULE, Ref),
   %% add the state to the current context
   put(Ref, NState),
-  gen_server:call(?MODULE, {take_control, Ref, NState}, 10000).
+  gen_server:call(?MODULE, {take_control, Ref, NState}, 60000).
 
 handle_error(#client{request_ref=Ref, dynamic=true}) ->
   close_request(Ref);

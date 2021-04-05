@@ -19,7 +19,8 @@
   shutdown/2,
   sockname/1]).
 
--define(TIMEOUT, 10000).
+-define(RECV_TIMEOUT, application:get_env(hackney, recv_timeout, 2000)).
+-define(INIT_TIMEOUT, application:get_env(hackney, init_connect_timeout, 2000)).
 
 -type http_socket() :: {atom(), inet:socket()}.
 -export_type([http_socket/0]).
@@ -44,7 +45,7 @@ messages({_, _}) ->
 
 
 connect(ProxyHost, ProxyPort, Opts) ->
-  connect(ProxyHost, ProxyPort, Opts, 10000).
+  connect(ProxyHost, ProxyPort, Opts, ?INIT_TIMEOUT).
 
 connect(ProxyHost, ProxyPort, Opts, Timeout)
   when is_list(ProxyHost), is_integer(ProxyPort),
@@ -92,7 +93,7 @@ connect(ProxyHost, ProxyPort, Opts, Timeout)
   end.
 
 recv(Socket, Length) ->
-  recv(Socket, Length, 10000).
+  recv(Socket, Length, ?RECV_TIMEOUT).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see gen_tcp:recv/3
@@ -186,7 +187,7 @@ do_handshake(Socket, Host, Port, Options) ->
   end.
 
 check_response(Socket) ->
-  case gen_tcp:recv(Socket, 0, ?TIMEOUT) of
+  case gen_tcp:recv(Socket, 0, ?RECV_TIMEOUT) of
     {ok, Data} ->
       check_status(Data);
     Error ->

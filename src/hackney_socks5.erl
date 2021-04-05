@@ -19,7 +19,8 @@
   shutdown/2,
   sockname/1]).
 
--define(TIMEOUT, 10000).
+-define(RECV_TIMEOUT, application:get_env(hackney, recv_timeout, 2000)).
+-define(INIT_TIMEOUT, application:get_env(hackney, init_connect_timeout, 2000)).
 
 -type socks5_socket() :: {atom(), inet:socket()}.
 -export_type([socks5_socket/0]).
@@ -44,7 +45,7 @@ messages({_, _}) ->
 
 
 connect(Host, Port, Opts) ->
-  connect(Host, Port, Opts, 10000).
+  connect(Host, Port, Opts, ?INIT_TIMEOUT).
 
 
 connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
@@ -90,7 +91,7 @@ connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
 
 
 recv(Socket, Length) ->
-  recv(Socket, Length, 10000).
+  recv(Socket, Length, ?RECV_TIMEOUT).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see gen_tcp:recv/3
@@ -153,7 +154,7 @@ do_handshake(Socket, Host, Port, Options) ->
     undefined ->
       %% no auth
       ok = gen_tcp:send(Socket, << 5, 1, 0 >>),
-      case gen_tcp:recv(Socket, 2, ?TIMEOUT) of
+      case gen_tcp:recv(Socket, 2, ?RECV_TIMEOUT) of
         {ok, << 5, 0 >>} ->
           do_connection(Socket, Host, Port, Options);
         {ok, _Reply} ->
@@ -172,7 +173,7 @@ do_handshake(Socket, Host, Port, Options) ->
 
 do_authentication(Socket, User, Pass) ->
   ok = gen_tcp:send(Socket, << 5, 1, 2 >>),
-  case gen_tcp:recv(Socket, 2, ?TIMEOUT) of
+  case gen_tcp:recv(Socket, 2, ?RECV_TIMEOUT) of
     {ok, <<5, 0>>} ->
       ok;
     {ok, <<5, 2>>} ->
@@ -182,7 +183,7 @@ do_authentication(Socket, User, Pass) ->
         User, << PassLength >>,
         Pass]),
       ok = gen_tcp:send(Socket, Msg),
-      case gen_tcp:recv(Socket, 2, ?TIMEOUT) of
+      case gen_tcp:recv(Socket, 2, ?RECV_TIMEOUT) of
         {ok, <<1, 0>>} ->
           ok;
         _ ->
@@ -198,7 +199,7 @@ do_connection(Socket, Host, Port, Options) ->
   case addr(Host, Port, Resolve) of
     Addr when is_binary(Addr) ->
       ok = gen_tcp:send(Socket, << 5, 1, 0, Addr/binary >>),
-      case gen_tcp:recv(Socket, 4, ?TIMEOUT) of
+      case gen_tcp:recv(Socket, 4, ?RECV_TIMEOUT) of
         {ok, << 5, 0, 0, AType>>} ->
           BoundAddr = recv_addr_port(AType, gen_tcp, Socket),
           check_connection(BoundAddr);
@@ -239,14 +240,14 @@ addr(Host, Port, Resolve) ->
   end.
 
 recv_addr_port(1 = AType, Transport, Socket) -> % IPv4
-   {ok, Data} = Transport:recv(Socket, 6, ?TIMEOUT),
+   {ok, Data} = Transport:recv(Socket, 6, ?RECV_TIMEOUT),
    <<AType, Data/binary>>;
 recv_addr_port(4 = AType, Transport, Socket) -> % IPv6
-   {ok, Data} = Transport:recv(Socket, 18, ?TIMEOUT),
+   {ok, Data} = Transport:recv(Socket, 18, ?RECV_TIMEOUT),
    <<AType, Data/binary>>;
 recv_addr_port(3 = AType, Transport, Socket) -> % Domain
-   {ok, <<DLen/integer>>} = Transport:recv(Socket, 1, ?TIMEOUT),
-   {ok, AddrPort} = Transport:recv(Socket, DLen + 2, ?TIMEOUT),
+   {ok, <<DLen/integer>>} = Transport:recv(Socket, 1, ?RECV_TIMEOUT),
+   {ok, AddrPort} = Transport:recv(Socket, DLen + 2, ?RECV_TIMEOUT),
    <<AType, DLen, AddrPort/binary>>;
 recv_addr_port(_, _, _) ->
    error.
