@@ -5,6 +5,7 @@
                      host,
                      port,
                      id,
+                     created_at = os:system_time(millisecond),
                      tunnel = false}).
 
 -record(client,  {

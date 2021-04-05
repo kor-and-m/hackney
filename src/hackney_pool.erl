@@ -636,4 +636,12 @@ handle_stats(State) ->
    {max, Max},
    {in_use_count,  dict:size(Clients)},
    {free_count, dict:size(Sockets)},
-   {queue_count, dict:size(Pending)}].
+   {queue_count, dict:size(Pending)},
+   {oldest_client, oldest_client(Clients)}].
+
+oldest_client(Clients) ->
+  lists:foldl(fun
+    ({_, #connection{created_at = CreatedAt}}, null) -> CreatedAt;
+    ({_, #connection{created_at = CreatedAt}}, CreatedAtMin) when CreatedAt < CreatedAtMin -> CreatedAt;
+    (_, Min) -> Min
+  end, null, dict:to_list(Clients)).
