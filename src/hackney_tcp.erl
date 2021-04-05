@@ -21,7 +21,7 @@
 messages(_) -> {tcp, tcp_closed, tcp_error}.
 
 connect(Host, Port, Opts) ->
-  connect(Host, Port, Opts, infinity).
+  connect(Host, Port, Opts, 10000).
 
 connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
                                         (Timeout =:= infinity orelse is_integer(Timeout)) ->
@@ -31,7 +31,7 @@ connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
   gen_tcp:connect(Host, Port, Opts1, Timeout).
 
 recv(Socket, Length) ->
-  recv(Socket, Length, infinity).
+  recv(Socket, Length, 10000).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see gen_tcp:recv/3

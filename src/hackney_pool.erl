@@ -76,7 +76,7 @@ checkout(Host, Port, Transport, Client) ->
         false ->
           case Result of
             {ok, {_Name, ConnRef, Connection, Owner, Transport}, Socket} ->
-              gen_server:call(Owner, {checkin, ConnRef, Connection, Socket, Transport}, infinity);
+              gen_server:call(Owner, {checkin, ConnRef, Connection, Socket, Transport}, 10000);
             _Error ->
               ok
           end
@@ -146,7 +146,7 @@ checkin({_Name, Ref, Connection, Owner, Transport}, Socket) ->
     true ->
       case hackney_connection:controlling_process(Connection, Socket, Owner) of
         ok ->
-          gen_server:call(Owner, {checkin, Ref, Connection, Socket, Transport}, infinity);
+          gen_server:call(Owner, {checkin, Ref, Connection, Socket, Transport}, 10000);
         _Error ->
           catch hackney_connection:close(Connection,Socket),
           ok

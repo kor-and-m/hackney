@@ -19,7 +19,7 @@
   shutdown/2,
   sockname/1]).
 
--define(TIMEOUT, infinity).
+-define(TIMEOUT, 10000).
 
 -type http_socket() :: {atom(), inet:socket()}.
 -export_type([http_socket/0]).
@@ -44,7 +44,7 @@ messages({_, _}) ->
 
 
 connect(ProxyHost, ProxyPort, Opts) ->
-  connect(ProxyHost, ProxyPort, Opts, infinity).
+  connect(ProxyHost, ProxyPort, Opts, 10000).
 
 connect(ProxyHost, ProxyPort, Opts, Timeout)
   when is_list(ProxyHost), is_integer(ProxyPort),
@@ -92,7 +92,7 @@ connect(ProxyHost, ProxyPort, Opts, Timeout)
   end.
 
 recv(Socket, Length) ->
-  recv(Socket, Length, infinity).
+  recv(Socket, Length, 10000).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see gen_tcp:recv/3

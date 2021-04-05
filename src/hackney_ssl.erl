@@ -132,7 +132,7 @@ find(_Fun, []) ->
 
 
 connect(Host, Port, Opts) ->
-  connect(Host, Port, Opts, infinity).
+  connect(Host, Port, Opts, 10000).
 
 connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
                                         (Timeout =:= infinity orelse is_integer(Timeout)) ->
@@ -146,7 +146,7 @@ connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
 
 
 recv(Socket, Length) ->
-  recv(Socket, Length, infinity).
+  recv(Socket, Length, 10000).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see ssl:recv/3

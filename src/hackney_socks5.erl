@@ -19,7 +19,7 @@
   shutdown/2,
   sockname/1]).
 
--define(TIMEOUT, infinity).
+-define(TIMEOUT, 10000).
 
 -type socks5_socket() :: {atom(), inet:socket()}.
 -export_type([socks5_socket/0]).
@@ -44,7 +44,7 @@ messages({_, _}) ->
 
 
 connect(Host, Port, Opts) ->
-  connect(Host, Port, Opts, infinity).
+  connect(Host, Port, Opts, 10000).
 
 
 connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
@@ -90,7 +90,7 @@ connect(Host, Port, Opts, Timeout) when is_list(Host), is_integer(Port),
 
 
 recv(Socket, Length) ->
-  recv(Socket, Length, infinity).
+  recv(Socket, Length, 10000).
 
 %% @doc Receive a packet from a socket in passive mode.
 %% @see gen_tcp:recv/3

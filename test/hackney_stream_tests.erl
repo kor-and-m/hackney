@@ -39,7 +39,7 @@ async_request() ->
      ?_assertEqual([body, headers, status], Keys)].
 
 receive_response(Ref) ->
-    Dict = receive_response(Ref, orddict:new(), infinity),
+    Dict = receive_response(Ref, orddict:new(), 10000),
     Keys = orddict:fetch_keys(Dict),
     StatusCode = orddict:fetch(status, Dict),
     {StatusCode, Keys}.
